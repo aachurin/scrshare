@@ -1,0 +1,2 @@
+meson x --buildtype release --strip -Db_lto=true
+ninja -Cx install
