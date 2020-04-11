@@ -1,7 +1,9 @@
 #include "video_buffer.h"
 
+#include <fcntl.h>
 #include <errno.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <libavutil/avutil.h>
 #include <libavformat/avformat.h>

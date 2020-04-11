@@ -21,8 +21,22 @@ cc = meson.get_compiler('c')
 src += [ 'src/sys/unix/net.c' ]
 
 src_dir = include_directories('src')
+
+librt = cc.find_library('librt', required: false)
+libpthread = cc.find_library('pthread', required: false)
+dependencies += [librt, libpthread]
+
 c_args = []
 link_args = []
+
+if libpthread.found()
+    c_args += ['-pthread']
+    link_args += ['-lpthread']
+endif
+
+if librt.found()
+    link_args += ['-lrt']
+endif
 
 executable('scrshare', src,
            dependencies: dependencies,
