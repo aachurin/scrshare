@@ -1,9 +1,14 @@
-sudo apt install ffmpeg libsdl2-2.0-0 adb
-
-sudo apt install gcc git pkg-config meson ninja-build \
+sudo apt install ffmpeg libsdl2-2.0-0 adb \
+                 gcc git pkg-config meson ninja-build \
                  libavcodec-dev libavformat-dev libavutil-dev \
                  libsdl2-dev
 
-
+git clone https://github.com/aachurin/scrshare.git
+cd scrshare
 meson x --buildtype release --strip -Db_lto=true
-ninja -Cx install
+sudo ninja -Cx install
+cd ~
+sudo apt install python3-pip
+git clone https://github.com/aachurin/robobo.git
+cd ~/robobo
+sudo pip3 install -r requirements.txt
