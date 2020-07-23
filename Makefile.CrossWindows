@@ -34,7 +34,6 @@ build-win64: prepare-deps-win64
 			--cross-file cross_win64.txt \
 			--buildtype release --strip -Db_lto=true \
 			-Dcrossbuild_windows=true \
-			-Dcompile_server=false \
 			-Dportable=true )
 	ninja -C "$(WIN64_BUILD_DIR)"
 
@@ -44,7 +43,6 @@ build-win64-noconsole: prepare-deps-win64
 			--cross-file cross_win64.txt \
 			--buildtype release --strip -Db_lto=true \
 			-Dcrossbuild_windows=true \
-			-Dcompile_server=false \
 			-Dwindows_noconsole=true \
 			-Dportable=true )
 	ninja -C "$(WIN64_NOCONSOLE_BUILD_DIR)"

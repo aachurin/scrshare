@@ -2,4 +2,3 @@ option('compile_app', type: 'boolean', value: true, description: 'Build the clie
 option('crossbuild_windows', type: 'boolean', value: false, description: 'Build for Windows from Linux')
 option('windows_noconsole', type: 'boolean', value: false, description: 'Disable console on Windows (pass -mwindows flag)')
 option('portable', type: 'boolean', value: false, description: 'Use scrcpy-server from the same directory as the scrcpy executable')
-
