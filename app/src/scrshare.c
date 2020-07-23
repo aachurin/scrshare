@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <semaphore.h>
 #include <libavformat/avformat.h>
 #include <sys/time.h>
 
@@ -26,24 +25,6 @@ before_exit()
     LOGI("close video buffer before exit.")
     video_buffer_destroy(&video_buffer);
 }
-
-//static void
-//av_log_callback(void *avcl, int level, const char *fmt, va_list vl) {
-//    SDL_LogPriority priority = sdl_priority_from_av_level(level);
-//    if (priority == 0) {
-//        return;
-//    }
-//    char *local_fmt = SDL_malloc(strlen(fmt) + 10);
-//    if (!local_fmt) {
-//        LOGC("Could not allocate string");
-//        return;
-//    }
-//    // strcpy is safe here, the destination is large enough
-//    strcpy(local_fmt, "[FFmpeg] ");
-//    strcpy(local_fmt + 9, fmt);
-//    SDL_LogMessageV(SDL_LOG_CATEGORY_VIDEO, priority, local_fmt, vl);
-//    SDL_free(local_fmt);
-//}
 
 bool
 scrshare(uint16_t port, const char* video_buffer_name, uint16_t video_render_interval) {
