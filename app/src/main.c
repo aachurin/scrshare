@@ -9,12 +9,14 @@
 #include "compat.h"
 #include "log.h"
 
-#define DEFAULT_LOCAL_PORT 27183
+#define DEFAULT_VIDEO_SERVER_PORT 27183
+#define DEFAULT_RECEIVER_SERVER_PORT 27184
+
 
 struct args {
     bool help;
-    uint16_t port;
-    const char *video_name;
+    uint16_t video_server_port;
+    uint16_t receiver_server_port;
     uint16_t video_render_interval;
     int log_level;
 };
@@ -28,12 +30,13 @@ static void usage(const char *arg0) {
         "    -h, --help\n"
         "        Print this help.\n"
         "\n"
-        "    -p, --port port\n"
-        "        Set the TCP port of server.\n"
+        "    -v, --video_server_port port\n"
+        "        Video server TCP port.\n"
         "        Default is %d.\n"
         "\n"
-        "    -v, --video text\n"
-        "        Set name for shared video buffer (default: '/android_video').\n"
+        "    -r, --receiver_server_port port\n"
+        "        Receiver server TCP port.\n"
+        "        Default is %d.\n"
         "\n"
         "    -i, --video-render-interval N\n"
         "        Render interval to the video buffer (0 for disabling)\n"
@@ -42,7 +45,8 @@ static void usage(const char *arg0) {
         "        Logging level (default: 'INFO')\n"
         "\n",
         arg0,
-        DEFAULT_LOCAL_PORT);
+        DEFAULT_VIDEO_SERVER_PORT,
+        DEFAULT_RECEIVER_SERVER_PORT);
 }
 
 static bool
@@ -108,31 +112,31 @@ parse_log_level(char* optarg, int *log_level) {
     return true;
 }
 
-const char DEFAULT_VIDEO_NAME[] = "/android_video";
-
 static bool
 parse_args(struct args *args, int argc, char *argv[]) {
     static const struct option long_options[] = {
         {"help",                  no_argument,       NULL, 'h'},
-        {"port",                  required_argument, NULL, 'p'},
-        {"video",                 required_argument, NULL, 'v'},
+        {"video-server-port",     required_argument, NULL, 'v'},
+        {"receiver-server-port",  required_argument, NULL, 'r'},
         {"video-render-interval", required_argument, NULL, 'i'},
         {"log-level",             required_argument, NULL, 'l'},
         {NULL,                    0,                 NULL, 0  },
     };
     int c;
-    while ((c = getopt_long(argc, argv, "hp:v:i:l:", long_options, NULL)) != -1) {
+    while ((c = getopt_long(argc, argv, "hv:r:i:l:", long_options, NULL)) != -1) {
         switch (c) {
             case 'h':
                 args->help = true;
                 break;
-            case 'p':
-                if (!parse_port(optarg, &args->port)) {
+            case 'v':
+                if (!parse_port(optarg, &args->video_server_port)) {
                     return false;
                 }
                 break;
-            case 'v':
-                args->video_name = optarg;
+            case 'r':
+                if (!parse_port(optarg, &args->receiver_server_port)) {
+                    return false;
+                }
                 break;
             case 'i':
                 if (!parse_video_render_interval(optarg, &args->video_render_interval)) {
@@ -163,7 +167,7 @@ int
 main(int argc, char *argv[]) {
     set_log_level(LEVEL_INFO);
 
-#ifdef __WINDOWS__
+#ifdef _WIN64
     // disable buffering, we want logs immediately
     // even line buffering (setvbuf() with mode _IOLBF) is not sufficient
     setbuf(stdout, NULL);
@@ -171,8 +175,8 @@ main(int argc, char *argv[]) {
 #endif
     struct args args = {
         .help = false,
-        .port = DEFAULT_LOCAL_PORT,
-        .video_name = DEFAULT_VIDEO_NAME,
+        .video_server_port = DEFAULT_VIDEO_SERVER_PORT,
+        .receiver_server_port = DEFAULT_RECEIVER_SERVER_PORT,
         .video_render_interval = 0
     };
 
@@ -197,7 +201,12 @@ main(int argc, char *argv[]) {
         return 1;
     }
 
-    int res = scrshare(args.port, args.video_name, args.video_render_interval) ? 0 : 1;
+    int res = scrshare(
+        args.video_server_port,
+        args.receiver_server_port,
+        args.video_render_interval
+        ) ? 0 : 1;
+
     avformat_network_deinit();
 
     return res;

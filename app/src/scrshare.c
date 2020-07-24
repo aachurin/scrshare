@@ -12,7 +12,8 @@
 #include "device.h"
 #include "log.h"
 #include "net.h"
-#include "server.h"
+#include "video_server.h"
+#include "receiver_server.h"
 #include "stream.h"
 #include "video_buffer.h"
 
@@ -27,23 +28,34 @@ before_exit()
 }
 
 bool
-scrshare(uint16_t port, const char* video_buffer_name, uint16_t video_render_interval) {
-    struct server server;
+scrshare(uint16_t video_server_port, uint16_t receiver_server_port, uint16_t video_render_interval) {
+    struct video_server video_server;
+    struct receiver_server receiver_server;
     struct stream stream;
     struct decoder decoder;
 
     bool ret = false;
     bool video_buffer_initialized = false;
 
-    server_init(&server, port);
+    video_server_init(&video_server, video_server_port);
 
-    LOGI("connect to server");
+    LOGI("connect to video server");
 
-    if (!server_connect(&server)) {
+    if (!video_server_connect(&video_server)) {
         goto end;
     }
 
-    LOGC("@socket_connected");
+    LOGC("@video_server_connected");
+
+    receiver_server_init(&receiver_server, receiver_server_port);
+
+    LOGI("connect to receiver");
+
+    if (!receiver_server_connect(&receiver_server)) {
+        goto end;
+    }
+
+    LOGC("@receiver_server_connected");
 
     char device_name[DEVICE_NAME_FIELD_LENGTH];
     struct size frame_size;
@@ -51,18 +63,18 @@ scrshare(uint16_t port, const char* video_buffer_name, uint16_t video_render_int
     // screenrecord does not send frames when the screen content does not
     // change therefore, we transmit the screen size before the video stream,
     // to be able to init the window immediately
-    if (!device_read_info(server.video_socket, device_name, &frame_size)) {
+    if (!device_read_info(video_server.socket, device_name, &frame_size)) {
         goto end;
     }
 
     LOGI("Device: %s", device_name)
     LOGC("@screen %d, %d", frame_size.width, frame_size.height);
 
-    uint32_t video_buffer_size = frame_size.width * frame_size.height * 2;
+    uint32_t video_frame_size = frame_size.width * frame_size.height * 2;
 
     if (!video_buffer_init(&video_buffer,
-                           video_buffer_name,
-                           video_buffer_size,
+                           receiver_server.socket,
+                           video_frame_size,
                            video_render_interval)) {
         goto end;
     }
@@ -70,14 +82,15 @@ scrshare(uint16_t port, const char* video_buffer_name, uint16_t video_render_int
     video_buffer_initialized = true;
     atexit(before_exit);
     decoder_init(&decoder, &video_buffer);
-//    av_log_set_callback(av_log_callback);
+
     LOGI("start stream");
-    stream_init(&stream, server.video_socket, &decoder);
+    stream_init(&stream, video_server.socket, &decoder);
     ret = stream_start(&stream);
 
 end:
     // shutdown the sockets and kill the server
-    server_disconnect(&server);
+    video_server_disconnect(&video_server);
+    receiver_server_disconnect(&receiver_server);
 
     // now that the sockets are shutdown, the stream and controller are
     // interrupted, we can join them

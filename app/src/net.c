@@ -7,7 +7,7 @@
 
 #include "log.h"
 
-#ifdef __WINDOWS__
+#ifdef _WIN64
   typedef int socklen_t;
 #else
   #include <sys/types.h>

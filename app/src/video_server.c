@@ -1,4 +1,4 @@
-#include "server.h"
+#include "video_server.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -61,25 +61,25 @@ close_socket(socket_t *socket) {
 }
 
 void
-server_init(struct server *server, uint16_t local_port) {
-    server->video_socket = INVALID_SOCKET;
-    server->local_port = local_port;
+video_server_init(struct video_server *server, uint16_t port) {
+    server->socket = INVALID_SOCKET;
+    server->port = port;
 }
 
 
 bool
-server_connect(struct server *server) {
+video_server_connect(struct video_server *server) {
     uint32_t attempts = 10;
-    server->video_socket = connect_to_server(server->local_port, attempts);
-    if (server->video_socket == INVALID_SOCKET) {
+    server->socket = connect_to_server(server->port, attempts);
+    if (server->socket == INVALID_SOCKET) {
         return false;
     }
     return true;
 }
 
 void
-server_disconnect(struct server *server) {
-    if (server->video_socket != INVALID_SOCKET) {
-        close_socket(&server->video_socket);
+video_server_disconnect(struct video_server *server) {
+    if (server->socket != INVALID_SOCKET) {
+        close_socket(&server->socket);
     }
 }

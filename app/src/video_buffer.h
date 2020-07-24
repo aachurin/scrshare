@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <semaphore.h>
+#include "net.h"
 
 // forward declarations
 typedef struct AVFrame AVFrame;
@@ -12,19 +12,16 @@ struct video_buffer {
     AVFrame *decoding_frame;
     AVFrame *rendering_frame;
     uint16_t video_render_interval;
-    const char* video_buffer_name;
-    uint32_t video_buffer_size;
-    void *video_buffer;
-    sem_t *video_lock;
-    const char* video_lock_name;
     uintmax_t video_render_clock;
     uint32_t video_render_key;
+    uint32_t video_frame_size;
+    socket_t socket;
 };
 
 bool
 video_buffer_init(struct video_buffer *vb,
-                  const char *video_buffer_name,
-                  uint32_t video_buffer_size,
+                  socket_t socket,
+                  uint32_t video_frame_size,
                   uint16_t video_render_interval);
 
 void

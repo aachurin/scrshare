@@ -5,6 +5,6 @@
 #include <stdint.h>
 
 bool
-scrshare(uint16_t port, const char* video_buffer_name, uint16_t video_render_interval);
+scrshare(uint16_t video_server_port, uint16_t receiver_server_port, uint16_t video_render_interval);
 
 #endif

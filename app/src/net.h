@@ -3,9 +3,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <SDL2/SDL_platform.h>
 
-#ifdef __WINDOWS__
+#ifdef _WIN64
 # include <winsock2.h>
   #define SHUT_RD SD_RECEIVE
   #define SHUT_WR SD_SEND
