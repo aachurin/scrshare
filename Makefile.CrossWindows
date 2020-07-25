@@ -59,6 +59,7 @@ dist-win64: build-win64 build-win64-noconsole
 	cp prebuilt-deps/platform-tools/AdbWinApi.dll "$(DIST)/$(WIN64_TARGET_DIR)/"
 	cp prebuilt-deps/platform-tools/AdbWinUsbApi.dll "$(DIST)/$(WIN64_TARGET_DIR)/"
 
+
 zip-win64: dist-win64
 	cd "$(DIST)/$(WIN64_TARGET_DIR)"; \
 		zip -r "../$(WIN64_TARGET)" .

@@ -19,8 +19,22 @@ if not get_option('crossbuild_windows')
         dependency('libavutil')
     ]
 else
+
     # cross-compile mingw32 build (from Linux to Windows)
     cc = meson.get_compiler('c')
+
+    # prebuilt_sdl2 = meson.get_cross_property('prebuilt_sdl2')
+    # sdl2_bin_dir = meson.current_source_dir() + '/../prebuilt-deps/' + prebuilt_sdl2 + '/bin'
+    # sdl2_lib_dir = meson.current_source_dir() + '/../prebuilt-deps/' + prebuilt_sdl2 + '/lib'
+    # sdl2_include_dir = '../prebuilt-deps/' + prebuilt_sdl2 + '/include'
+
+    # sdl2 = declare_dependency(
+    #     dependencies: [
+    #         cc.find_library('SDL2', dirs: sdl2_bin_dir),
+    #         cc.find_library('SDL2main', dirs: sdl2_lib_dir),
+    #     ],
+    #     include_directories: include_directories(sdl2_include_dir)
+    # )
 
     prebuilt_ffmpeg_shared = meson.get_cross_property('prebuilt_ffmpeg_shared')
     prebuilt_ffmpeg_dev = meson.get_cross_property('prebuilt_ffmpeg_dev')
@@ -37,6 +51,7 @@ else
 
     dependencies = [
         ffmpeg,
+        # sdl2,
         cc.find_library('mingw32')
     ]
 
@@ -48,8 +63,6 @@ endif
 
 
 cc = meson.get_compiler('c')
-src += [ 'src/sys/unix/net.c' ]
-
 src_dir = include_directories('src')
 
 if get_option('windows_noconsole')
@@ -59,25 +72,9 @@ else
 endif
 
 
-#librt = cc.find_library('librt', required: false)
-libpthread = cc.find_library('pthread', required: false)
-dependencies += [libpthread]
-
-c_args = []
-link_args = []
-
-if libpthread.found()
-    c_args += ['-pthread']
-    link_args += ['-lpthread']
-endif
-
-#if librt.found()
-#    link_args += ['-lrt']
-#endif
-
 executable('scrshare', src,
            dependencies: dependencies,
            include_directories: src_dir,
            install: true,
-           c_args: c_args,
+           c_args: [],
            link_args: link_args)

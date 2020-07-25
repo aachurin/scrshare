@@ -62,6 +62,20 @@ video_buffer_swap_frames(struct video_buffer *vb) {
     vb->rendering_frame = tmp;
 }
 
+#ifdef _WIN64
+static uintmax_t
+get_current_time ()
+{
+    static int initialized = 0;
+    static uint32_t base;
+    if (!initialized) {
+        base = GetTickCount();
+        initialized = 1;
+    }
+    uint32_t cur = GetTickCount() - base;
+    return cur;
+}
+#else
 static uintmax_t
 get_current_time ()
 {
@@ -70,6 +84,7 @@ get_current_time ()
     uintmax_t ms = spec.tv_sec * 1000 + spec.tv_nsec / 1000000;
     return ms;
 }
+#endif
 
 void
 video_buffer_offer_decoded_frame(struct video_buffer *vb) {

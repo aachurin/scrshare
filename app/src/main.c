@@ -8,6 +8,7 @@
 
 #include "compat.h"
 #include "log.h"
+#include "net.h"
 
 #define DEFAULT_VIDEO_SERVER_PORT 27183
 #define DEFAULT_RECEIVER_SERVER_PORT 27184
@@ -166,7 +167,6 @@ parse_args(struct args *args, int argc, char *argv[]) {
 int
 main(int argc, char *argv[]) {
     set_log_level(LEVEL_INFO);
-
 #ifdef _WIN64
     // disable buffering, we want logs immediately
     // even line buffering (setvbuf() with mode _IOLBF) is not sufficient
@@ -197,6 +197,7 @@ main(int argc, char *argv[]) {
     av_register_all();
 #endif
 
+    net_init();
     if (avformat_network_init()) {
         return 1;
     }
@@ -208,6 +209,6 @@ main(int argc, char *argv[]) {
         ) ? 0 : 1;
 
     avformat_network_deinit();
-
+    net_cleanup();
     return res;
 }

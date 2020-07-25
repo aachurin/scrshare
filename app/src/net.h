@@ -25,6 +25,12 @@ net_cleanup(void);
 socket_t
 net_connect(uint32_t addr, uint16_t port);
 
+socket_t
+net_listen(uint32_t addr, uint16_t port, int backlog);
+
+socket_t
+net_accept(socket_t server_socket);
+
 // the _all versions wait/retry until len bytes have been written/read
 ssize_t
 net_recv(socket_t socket, void *buf, size_t len);
